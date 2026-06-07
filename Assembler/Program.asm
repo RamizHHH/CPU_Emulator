@@ -1,0 +1,4 @@
+MOVI r2, 10
+MOVI r3, 5
+ADD r1, r2, r3
+HALT

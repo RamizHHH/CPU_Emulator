@@ -1,0 +1,328 @@
+CUSTOM CPU ISA: Issac-32
+
+1. Overview
+
+Issac-32 is a simple 32-bit load/store instruction set architecture designed for a small emulator or educational CPU.
+It is intentionally regular and easy to decode.
+
+Core goals:
+- Fixed 32-bit instruction width
+- 32 general-purpose registers
+- Simple flat memory model
+- Easy to implement in C
+- Enough instructions for arithmetic, branching, memory access, and basic system control
+
+2. Architectural State
+
+Registers:
+- r0 to r31: 32 general-purpose 32-bit registers
+- r0 is always hard-wired to 0
+- Writes to r0 are ignored
+
+Special registers:
+- pc: program counter, byte address of next instruction
+- ir: current instruction register, optional for emulators
+- flag_z: zero flag
+- flag_n: negative flag
+- flag_c: carry flag
+- flag_v: overflow flag
+
+3. Memory Model
+
+- Memory is byte-addressed
+- Instructions are 4 bytes each and must be aligned to 4-byte boundaries
+- All loads and stores use little-endian layout
+- Invalid memory accesses should raise a trap
+
+Suggested memory regions:
+- 0x00000000 to 0x0000FFFF: ROM or program space
+- 0x00010000 to 0x00FFFFFF: RAM
+- 0xFF000000 to 0xFFFFFFFF: memory-mapped I/O
+
+4. Instruction Encoding
+
+All instructions are 32 bits.
+
+General format:
+
+|31    26|25   21|20   16|15   11|10                 0|
+| opcode |  rd   |  rs1  |  rs2  | immediate / extra |
+
+Format types:
+- R-type: register-register operations
+- I-type: register-immediate operations and loads
+- S-type: stores
+- B-type: branches
+- J-type: jumps
+- P-type: system and special control instructions
+
+5. Opcode Map
+
+0x00 NOP
+
+0x01 ADD
+0x02 SUB
+0x03 AND
+0x04 OR
+0x05 XOR
+0x06 SHL
+0x07 SHR
+0x08 SAR
+0x09 MUL
+0x0A DIV
+0x0B MOD
+0x0C CMP
+0x0D MOV
+0x0E NOT
+0x0F NEG
+
+0x10 ADDI
+0x11 SUBI
+0x12 ANDI
+0x13 ORI
+0x14 XORI
+0x15 SHLI
+0x16 SHRI
+0x17 SARI
+0x18 CMPI
+0x19 MOVI
+
+0x1A LD
+0x1B LDH
+0x1C LDB
+0x1D LDUH
+0x1E LDUB
+
+0x1F ST
+0x20 STH
+0x21 STB
+
+0x22 BEQ
+0x23 BNE
+0x24 BLT
+0x25 BGE
+0x26 BLTU
+0x27 BGEU
+
+0x28 JMP
+0x29 JAL
+0x2A JALR
+
+0x2B PUSH
+0x2C POP
+0x2D CALL
+0x2E RET
+
+0x2F LUI
+0x30 AUIPC
+
+0x31 SYS
+0x32 HALT
+0x33 TRAP
+
+0x34 RESERVED
+0x35 RESERVED
+0x36 RESERVED
+0x37 RESERVED
+0x38 RESERVED
+0x39 RESERVED
+0x3A RESERVED
+0x3B RESERVED
+0x3C RESERVED
+0x3D RESERVED
+0x3E RESERVED
+0x3F RESERVED
+
+6. Instruction Semantics
+
+Arithmetic and logic:
+- ADD rd, rs1, rs2: rd = rs1 + rs2
+- SUB rd, rs1, rs2: rd = rs1 - rs2
+- AND rd, rs1, rs2: rd = rs1 & rs2
+- OR rd, rs1, rs2: rd = rs1 | rs2
+- XOR rd, rs1, rs2: rd = rs1 ^ rs2
+- SHL rd, rs1, rs2: rd = rs1 << (rs2 & 31)
+- SHR rd, rs1, rs2: rd = rs1 >> (rs2 & 31) logical
+- SAR rd, rs1, rs2: rd = arithmetic right shift
+- MUL rd, rs1, rs2: rd = low 32 bits of signed multiply
+- DIV rd, rs1, rs2: rd = signed division, trap on divide by zero
+- MOD rd, rs1, rs2: rd = signed remainder, trap on divide by zero
+- CMP rs1, rs2: sets flags as if rs1 - rs2 was computed
+- MOV rd, rs1: rd = rs1
+- NOT rd, rs1: rd = bitwise not of rs1
+- NEG rd, rs1: rd = 0 - rs1
+
+Immediate operations:
+- ADDI rd, rs1, imm: rd = rs1 + sign_extend(imm)
+- SUBI rd, rs1, imm: rd = rs1 - sign_extend(imm)
+- ANDI rd, rs1, imm: rd = rs1 & zero_extend(imm)
+- ORI rd, rs1, imm: rd = rs1 | zero_extend(imm)
+- XORI rd, rs1, imm: rd = rs1 ^ zero_extend(imm)
+- SHLI rd, rs1, imm: rd = rs1 << (imm & 31)
+- SHRI rd, rs1, imm: rd = rs1 >> (imm & 31)
+- SARI rd, rs1, imm: rd = arithmetic right shift
+- CMPI rs1, imm: sets flags as if rs1 - sign_extend(imm)
+- MOVI rd, imm: rd = sign_extend(imm)
+
+Load and store:
+- LD rd, [rs1 + imm]: load 32-bit word
+- LDH rd, [rs1 + imm]: load signed 16-bit halfword
+- LDB rd, [rs1 + imm]: load signed 8-bit byte
+- LDUH rd, [rs1 + imm]: load unsigned 16-bit halfword
+- LDUB rd, [rs1 + imm]: load unsigned 8-bit byte
+- ST rs2, [rs1 + imm]: store 32-bit word
+- STH rs2, [rs1 + imm]: store low 16 bits
+- STB rs2, [rs1 + imm]: store low 8 bits
+
+Branching:
+- BEQ rs1, rs2, offset: branch if equal
+- BNE rs1, rs2, offset: branch if not equal
+- BLT rs1, rs2, offset: branch if signed less than
+- BGE rs1, rs2, offset: branch if signed greater or equal
+- BLTU rs1, rs2, offset: branch if unsigned less than
+- BGEU rs1, rs2, offset: branch if unsigned greater or equal
+
+Jumps:
+- JMP target: pc = target
+- JAL rd, target: rd = pc + 4, pc = target
+- JALR rd, rs1, imm: rd = pc + 4, pc = (rs1 + sign_extend(imm)) & ~1
+
+Stack and subroutines:
+- PUSH rs1: sp = sp - 4, store rs1 to [sp]
+- POP rd: load from [sp] to rd, sp = sp + 4
+- CALL target: push return address, jump to target
+- RET: pop return address into pc
+
+7. Register Convention
+
+Recommended software convention:
+- r0: constant zero
+- r1: return value
+- r2: argument 1
+- r3: argument 2
+- r4: argument 3
+- r5: argument 4
+- r6 to r15: caller-saved temporaries
+- r16 to r23: callee-saved registers
+- r24: global pointer
+- r25: stack pointer
+- r26: frame pointer
+- r27: link register
+- r28 to r31: reserved
+
+If you want a simpler emulator, you can ignore this convention and let all registers behave the same except r0.
+
+8. Immediate Fields
+
+For I-type instructions:
+- bits 15:0 hold a 16-bit immediate
+- sign extension is used unless the instruction explicitly says zero extend
+
+For branch instructions:
+- bits 15:0 hold a signed offset in bytes
+- branch target = pc + 4 + sign_extend(imm)
+- offset should normally be a multiple of 4
+
+For jump instructions:
+- bits 25:0 may hold an absolute or relative target depending on your emulator design
+- simplest option: treat target as a 26-bit absolute byte address shifted left by 2
+
+9. Flags
+
+Flags are updated by:
+- ADD, SUB, CMP, ADDI, SUBI, CMPI
+- Optionally by logical instructions if you want, but not required
+
+Flag rules:
+- flag_z = 1 if result == 0
+- flag_n = 1 if result has bit 31 set
+- flag_c = 1 if unsigned carry or borrow occurs
+- flag_v = 1 if signed overflow occurs
+
+10. System Instructions
+
+SYS uses the low 16 bits as a call number:
+- SYS 0: print integer in r1
+- SYS 1: print character in r1
+- SYS 2: read integer into r1
+- SYS 3: read character into r1
+- SYS 4: exit emulator with code in r1
+
+HALT:
+- Stop execution immediately
+
+TRAP:
+- Enter exception handler or terminate with fault
+
+11. Exception Conditions
+
+The emulator should trap on:
+- Division by zero
+- Invalid opcode
+- Misaligned word access
+- Out-of-bounds memory access
+- Return with empty stack
+- Jump to invalid address
+
+12. Minimal Assembly Examples
+
+Example 1: add two numbers
+
+    MOVI r1, 5
+    MOVI r2, 7
+    ADD r3, r1, r2
+    HALT
+
+Example 2: loop
+
+    MOVI r1, 10
+loop:
+    SUBI r1, r1, 1
+    BNE r1, r0, loop
+    HALT
+
+Example 3: memory store and load
+
+    MOVI r1, 0x1000
+    MOVI r2, 42
+    ST r2, [r1 + 0]
+    LD r3, [r1 + 0]
+    HALT
+
+13. Emulator Implementation Notes
+
+Suggested fetch-decode-execute flow:
+1. Fetch 32-bit instruction at pc
+2. Decode opcode and register fields
+3. Execute operation
+4. Update pc unless instruction already changed it
+
+Recommended defaults:
+- Initialize all registers to 0
+- Initialize pc to 0
+- Initialize stack pointer to top of RAM
+- Ignore writes to r0
+
+14. Optional Extensions
+
+Possible future additions:
+- Floating-point unit
+- Multiply-accumulate instructions
+- Byte-reversal instructions
+- Atomic read-modify-write operations
+- Interrupt handling
+- Memory protection
+- System calls for file I/O
+
+15. Design Summary
+
+Issac-32 is meant to be:
+- small enough to implement quickly
+- regular enough to decode easily
+- expressive enough to write real test programs
+- flexible enough to expand later
+
+If you want, the next step is to convert this ISA into:
+- a binary instruction encoding table
+- an assembler syntax
+- or C structs/enums for your emulator

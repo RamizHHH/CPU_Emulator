@@ -1,16 +1,14 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Iinclude
-
-SRC = $(wildcard src/*.c)
-OBJ = $(SRC:.c=.o)
-
 TARGET = emulator
 
-$(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $(TARGET)
+SRC = src/Main.c src/CPU.c src/CPU_Memory.c
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+all:
+	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+
+run: all
+	./$(TARGET)
 
 clean:
-	rm -f src/*.o $(TARGET)
+	rm -f $(TARGET)
