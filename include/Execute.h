@@ -7,9 +7,9 @@
 
 void ExecuteInstr(Instruction *instr, uint32_t *Mem, CPU *cpu);
 
-void isRType(Instruction *instr, uint32_t *Mem, CPU *cpu);
+void isRType(Instruction *instr, CPU *cpu);
 
-void isIType(Instruction *instr, uint32_t *Mem, CPU *cpu);
+void isIType(Instruction *instr, CPU *cpu);
 
 void isSType(Instruction *instr, uint32_t *Mem, CPU *cpu);
 
