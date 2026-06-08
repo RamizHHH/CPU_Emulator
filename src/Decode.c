@@ -25,38 +25,35 @@ void DecodeOpcode(uint32_t RawInstr, Instruction *instr)
 
 void DecodeRs1(uint32_t RawInstr, Instruction *instr)
 {
+    uint32_t RightShifted = RawInstr >> 16;
+    uint32_t Rs1 = RightShifted & 0xF;
+
     switch (instr->Type)
     {
     case 'R':
-        uint32_t RightShifted = RawInstr >> 16;
-        uint32_t rs1 = RightShifted & 0xF;
-        instr->rs1 = rs1;
+        instr->rs1 = Rs1;
         break;
 
     case 'I':
-        uint32_t RightShifted = RawInstr >> 16;
-        uint32_t rs1 = RightShifted & 0xF;
-        instr->rs1 = rs1;
+
+        instr->rs1 = Rs1;
         break;
 
     case 'S':
-        uint32_t RightShifted = RawInstr >> 16;
-        uint32_t rs1 = RightShifted & 0xF;
-        instr->rs1 = rs1;
+
+        instr->rs1 = Rs1;
         break;
 
     case 'B':
-        uint32_t RightShifted = RawInstr >> 16;
-        uint32_t rs1 = RightShifted & 0xF;
-        instr->rs1 = rs1;
+        instr->rs1 = Rs1;
         break;
 
     case 'J':
-        instr->rs1 = NULL;
+        instr->rs1 = 0;
         break;
 
     case 'P':
-        instr->rs1 = NULL;
+        instr->rs1 = 0;
         break;
 
     default:
@@ -66,36 +63,36 @@ void DecodeRs1(uint32_t RawInstr, Instruction *instr)
 
 void DecodeRs2(uint32_t RawInstr, Instruction *instr)
 {
+
+    uint32_t RightShifted = RawInstr >> 11;
+    uint32_t Rs2 = RightShifted & 0xF;
+
     switch (instr->Type)
     {
     case 'R':
-        uint32_t RightShifted = RawInstr >> 11;
-        uint32_t rs2 = RightShifted & 0xF;
-        instr->rs2 = rs2;
+        instr->rs2 = Rs2;
         break;
 
     case 'I':
-        instr->rs2 = NULL;
+        instr->rs2 = 0;
         break;
 
     case 'S':
-        uint32_t RightShifted = RawInstr >> 11;
-        uint32_t rs2 = RightShifted & 0xF;
-        instr->rs2 = rs2;
+
+        instr->rs2 = Rs2;
         break;
 
     case 'B':
-        uint32_t RightShifted = RawInstr >> 11;
-        uint32_t rs2 = RightShifted & 0xF;
-        instr->rs2 = rs2;
+
+        instr->rs2 = Rs2;
         break;
 
     case 'J':
-        instr->rs2 = NULL;
+        instr->rs2 = 0;
         break;
 
     case 'P':
-        instr->rs2 = NULL;
+        instr->rs2 = 0;
         break;
 
     default:
@@ -105,36 +102,35 @@ void DecodeRs2(uint32_t RawInstr, Instruction *instr)
 
 void DecodeRd(uint32_t RawInstr, Instruction *instr)
 {
+
+    uint32_t RightShifted = RawInstr >> 21;
+    uint32_t Rd = RightShifted & 0xF;
+
     switch (instr->Type)
     {
     case 'R':
-        uint32_t RightShifted = RawInstr >> 21;
-        uint32_t rd = RightShifted & 0xF;
-        instr->rs1 = rd;
+        instr->rs1 = Rd;
         break;
 
     case 'I':
-        uint32_t RightShifted = RawInstr >> 21;
-        uint32_t rd = RightShifted & 0xF;
-        instr->rs1 = rd;
+        instr->rd = Rd;
         break;
 
     case 'S':
-        uint32_t RightShifted = RawInstr >> 21;
-        uint32_t rd = RightShifted & 0xF;
-        instr->rd = rd;
+
+        instr->rd = Rd;
         break;
 
     case 'B':
-        instr->rd = NULL;
+        instr->rd = 0;
         break;
 
     case 'J':
-        instr->rd = NULL;
+        instr->rd = 0;
         break;
 
     case 'P':
-        instr->rd = NULL;
+        instr->rd = 0;
         break;
 
     default:
@@ -144,34 +140,33 @@ void DecodeRd(uint32_t RawInstr, Instruction *instr)
 
 void DecodeImm(uint32_t RawInstr, Instruction *instr)
 {
+
+    uint32_t Imm = RawInstr & 0x3FF;
+
     switch (instr->Type)
     {
     case 'R':
-        uint32_t imm = RawInstr & 0x3FF;
-        instr->imm = imm;
+        instr->imm = Imm;
         break;
 
     case 'I':
-        uint32_t imm = RawInstr & 0x3FF;
-        instr->imm = imm;
+        instr->imm = Imm;
         break;
 
     case 'S':
-        uint32_t imm = RawInstr & 0x3FF;
-        instr->imm = imm;
+        instr->imm = Imm;
         break;
 
     case 'B':
-        uint32_t imm = RawInstr & 0x3FF;
-        instr->imm = imm;
+        instr->imm = Imm;
         break;
 
     case 'J':
-        instr->imm = NULL;
+        instr->imm = 0;
         break;
 
     case 'P':
-        instr->imm = NULL;
+        instr->imm = 0;
         break;
 
     default:

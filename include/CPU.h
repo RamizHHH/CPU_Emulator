@@ -14,8 +14,9 @@ typedef struct
     uint8_t rs1;
     uint8_t rs2;
     uint8_t rd;
-    uint8_t imm;
+    uint16_t imm;
 
 } Instruction;
 
 CPU *initalizeCPU();
+void freeCPU(CPU *cpu);

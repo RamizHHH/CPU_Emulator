@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     loadProgram(CPU_Mem, argv[1], MAX_MEMORY_SIZE);
 
     freeMemory(CPU_Mem);
-    free(cpu);
+    freeCPU(cpu);
 
     return 0;
 }

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <stdlib.h>
 #include "CPU.h"
 
 void ExecuteInstr(Instruction *instr, uint32_t *Mem, CPU *cpu);

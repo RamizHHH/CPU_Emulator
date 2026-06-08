@@ -44,5 +44,7 @@ void loadProgram(uint32_t *mem, const char *filename, int Memory_size)
         perror("Error reading program");
     }
 
+    printf("%u", mem[1]);
+
     fclose(program);
 }

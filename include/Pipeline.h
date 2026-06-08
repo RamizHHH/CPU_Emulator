@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "Fetch.h"
 #include "CPU_Memory.h"
-#include "CPU.h"
 #include <stdint.h>
 #include <unistd.h>
 #include "Decode.h"

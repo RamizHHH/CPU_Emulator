@@ -16,3 +16,8 @@ CPU *initalizeCPU()
     cpu->pc = 0;
     return cpu;
 }
+
+void freeCPU(CPU *cpu)
+{
+    free(cpu);
+}
