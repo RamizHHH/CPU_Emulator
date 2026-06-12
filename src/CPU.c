@@ -14,6 +14,7 @@ CPU *initalizeCPU()
         cpu->reg[i] = 0;
     }
     cpu->pc = 0;
+    cpu->halted = 0;
     return cpu;
 }
 

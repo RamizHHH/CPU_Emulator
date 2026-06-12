@@ -36,6 +36,42 @@ uint32_t AssembleLine(char *line)
         return (EncodeR(OP_ADD, rd, rs1, rs2));
     }
 
+    if (strcmp(tokens[0], "SUB") == 0)
+    {
+        int rd = parseRegister(tokens[1]);
+        int rs1 = parseRegister(tokens[2]);
+        int rs2 = parseRegister(tokens[3]);
+
+        return (EncodeR(OP_SUB, rd, rs1, rs2));
+    }
+
+    if (strcmp(tokens[0], "ADDI") == 0)
+    {
+        int rd = parseRegister(tokens[1]);
+        int rs1 = parseRegister(tokens[2]);
+        int imm = strtol(tokens[3], NULL, 0);
+
+        return (EncodeI(OP_ADDI, rd, rs1, imm));
+    }
+
+    if (strcmp(tokens[0], "LD") == 0)
+    {
+        int rd = parseRegister(tokens[1]);
+        int rs1 = parseRegister(tokens[2]);
+        int imm = strtol(tokens[3], NULL, 0);
+
+        return (EncodeI(OP_LD, rd, rs1, imm));
+    }
+
+    if (strcmp(tokens[0], "ST") == 0)
+    {
+        int rs2 = parseRegister(tokens[1]);
+        int rs1 = parseRegister(tokens[2]);
+        int imm = strtol(tokens[3], NULL, 0);
+
+        return (EncodeS(OP_ST, rs2, rs1, imm));
+    }
+
     if (strcmp(tokens[0], "HALT") == 0)
     {
         return EncodeP(OP_HALT);
@@ -64,4 +100,9 @@ uint32_t EncodeI(uint8_t opcode, uint8_t rd, uint8_t rs1, int16_t imm)
 uint32_t EncodeP(uint8_t opcode)
 {
     return ((uint32_t)opcode << 26);
+}
+
+uint32_t EncodeS(uint8_t opcode, uint8_t rs2, uint8_t rs1, int16_t imm)
+{
+    return ((uint32_t)opcode << 26) | ((uint32_t)rs2 << 21) | ((uint32_t)rs1 << 16) | ((uint16_t)imm);
 }

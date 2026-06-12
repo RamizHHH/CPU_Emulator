@@ -3,7 +3,7 @@
 #include <inttypes.h>
 
 #include "CPU_Memory.h"
-#include "CPU.h"
+#include "Pipeline.h"
 
 #define MAX_MEMORY_SIZE 2048
 
@@ -31,6 +31,8 @@ int main(int argc, char *argv[])
     }
 
     loadProgram(CPU_Mem, argv[1], MAX_MEMORY_SIZE);
+
+    Pipeline(cpu, CPU_Mem);
 
     freeMemory(CPU_Mem);
     freeCPU(cpu);

@@ -4,18 +4,31 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdlib.h>
-#include "CPU.h"
+#include "Decode.h"
 
-void ExecuteInstr(Instruction *instr, uint32_t *Mem, CPU *cpu);
+#ifndef EXECUTE_H
+#define EXECUTE_H
 
-void isRType(Instruction *instr, CPU *cpu);
+typedef struct
+{
+    uint32_t value;
 
-void isIType(Instruction *instr, CPU *cpu);
+} Execute_Register;
 
-void isSType(Instruction *instr, uint32_t *Mem, CPU *cpu);
+void ExecuteInstr(Instruction *instr, CPU *cpu, Execute_Register *reg);
 
-void isBType(Instruction *instr, uint32_t *Mem, CPU *cpu);
+void isRType(Instruction *instr, CPU *cpu, Execute_Register *reg);
 
-void isJType(Instruction *instr, uint32_t *Mem, CPU *cpu);
+void isIType(Instruction *instr, CPU *cpu, Execute_Register *reg);
 
-void isPType(Instruction *instr, uint32_t *Mem, CPU *cpu);
+void isSType(Instruction *instr, CPU *cpu, Execute_Register *reg);
+
+// void isBType(Instruction *instr, CPU *cpu, Execute_Register *reg);
+
+// void isJType(Instruction *instr, CPU *cpu, Execute_Register *reg);
+
+void isPType(Instruction *instr, CPU *cpu);
+
+void freeExRegister(Execute_Register *reg);
+
+#endif

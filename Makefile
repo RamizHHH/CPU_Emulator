@@ -9,6 +9,8 @@ SRC = src/Main.c \
  src/Fetch.c \
  src/Decode.c \
  src/Execute.c \
+ src/Memory_Stage.c \
+ src/WriteBack.c
 
 all:
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)

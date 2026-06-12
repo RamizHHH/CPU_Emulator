@@ -3,18 +3,21 @@
 #include "CPU_Memory.h"
 #include "CPU.h"
 
+#ifndef DECODE_H
+#define DECODE_H
+
 Instruction *DecodeInstruction(uint32_t RawInstr);
 
 void DecodeOpcode(uint32_t RawInstr, Instruction *instr);
 
-void DecodeRs1(uint32_t RawInstr, Instruction *instr);
+void DecodeRType(uint32_t RawInstr, Instruction *instr);
 
-void DecodeRs2(uint32_t RawInstr, Instruction *instr);
+void DecodeIType(uint32_t RawInstr, Instruction *instr);
 
-void DecodeRd(uint32_t RawInstr, Instruction *instr);
-
-void DecodeImm(uint32_t RawInstr, Instruction *instr);
+void DecodeSType(uint32_t RawInstr, Instruction *instr);
 
 void checkType(Instruction *instr);
 
 void FreeInstr(Instruction *instr);
+
+#endif

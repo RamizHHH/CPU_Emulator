@@ -1,35 +1,27 @@
 #include "Execute.h"
 
-void ExecuteInstr(Instruction *instr, uint32_t *Mem, CPU *cpu)
+void ExecuteInstr(Instruction *instr, CPU *cpu, Execute_Register *reg)
 {
+    reg->value = 0;
+
     if (instr->Type == 'R')
     {
-        isRType(instr, cpu);
+        isRType(instr, cpu, reg);
         return;
     }
     else if (instr->Type == 'I')
     {
-        isIType(instr, cpu);
+        isIType(instr, cpu, reg);
         return;
     }
     else if (instr->Type == 'S')
     {
-        isSType(instr, Mem, cpu);
-        return;
-    }
-    else if (instr->Type == 'B')
-    {
-        isBType(instr, Mem, cpu);
-        return;
-    }
-    else if (instr->Type == 'J')
-    {
-        isJType(instr, Mem, cpu);
+        isSType(instr, cpu, reg);
         return;
     }
     else if (instr->Type == 'P')
     {
-        isPType(instr, Mem, cpu);
+        isPType(instr, cpu);
         return;
     }
     else
@@ -39,405 +31,228 @@ void ExecuteInstr(Instruction *instr, uint32_t *Mem, CPU *cpu)
     }
 }
 
-void isRType(Instruction *instr, CPU *cpu)
+void isRType(Instruction *instr, CPU *cpu, Execute_Register *reg)
 {
     switch (instr->Opcode)
     {
     case 0x01:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] + cpu->reg[instr->rs2];
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = cpu->reg[instr->rs1] + cpu->reg[instr->rs2];
+        break;
+
     case 0x02:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] - cpu->reg[instr->rs2];
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = cpu->reg[instr->rs1] - cpu->reg[instr->rs2];
+        break;
 
     case 0x03:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] & cpu->reg[instr->rs2];
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = cpu->reg[instr->rs1] & cpu->reg[instr->rs2];
+        break;
 
     case 0x04:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] | cpu->reg[instr->rs2];
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = cpu->reg[instr->rs1] | cpu->reg[instr->rs2];
+        break;
 
     case 0x05:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] ^ cpu->reg[instr->rs2];
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = cpu->reg[instr->rs1] ^ cpu->reg[instr->rs2];
+        break;
 
     case 0x06:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] << (cpu->reg[instr->rs2] & 31);
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = cpu->reg[instr->rs1] << (cpu->reg[instr->rs2] & 31);
+        break;
 
     case 0x07:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] >> (cpu->reg[instr->rs2] & 31);
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = cpu->reg[instr->rs1] >> (cpu->reg[instr->rs2] & 31);
+        break;
 
     case 0x08:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = (int32_t)cpu->reg[instr->rs1] >> (cpu->reg[instr->rs2] & 31);
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = (int32_t)cpu->reg[instr->rs1] >> (cpu->reg[instr->rs2] & 31);
+        break;
+
     case 0x09:
-        if (instr->rd != 0)
-        {
-            int64_t result = (int64_t)(int32_t)cpu->reg[instr->rs1] * (int64_t)(int32_t)cpu->reg[instr->rs2];
-            cpu->reg[instr->rd] = (uint32_t)result;
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+    {
+        int16_t result = (int64_t)(int32_t)cpu->reg[instr->rs1] * (int64_t)(int32_t)cpu->reg[instr->rs2];
+        reg->value = (uint32_t)result;
+        break;
+    }
 
     case 0x0A:
-        if (instr->rd != 0)
+
+        if (cpu->reg[instr->rs2] != 0)
         {
-            if (cpu->reg[instr->rs2] != 0)
-            {
-                cpu->reg[instr->rd] = (uint32_t)((int32_t)cpu->reg[instr->rs1] / (int32_t)cpu->reg[instr->rs2]);
-                break;
-            }
-            else
-            {
-                // ADD TRAP HERE
-                perror("Error divide by zero");
-                exit(1);
-            }
+            reg->value = (uint32_t)((int32_t)cpu->reg[instr->rs1] / (int32_t)cpu->reg[instr->rs2]);
+            break;
         }
         else
         {
-            cpu->reg[instr->rd] = 0;
-            break;
+            // ADD TRAP HERE
+            perror("Error divide by zero");
+            exit(1);
         }
 
     case 0x0B:
-        if (instr->rd != 0)
+
+        if (cpu->reg[instr->rs2] != 0)
         {
-            if (cpu->reg[instr->rs2] != 0)
-            {
-                cpu->reg[instr->rd] = (uint32_t)((int32_t)cpu->reg[instr->rs1] % (int32_t)cpu->reg[instr->rs2]);
-                break;
-            }
-            else
-            {
-                // ADD TRAP HERE
-                perror("Error divide by zero");
-                exit(1);
-            }
+            reg->value = (uint32_t)((int32_t)cpu->reg[instr->rs1] % (int32_t)cpu->reg[instr->rs2]);
+            break;
         }
         else
         {
-            cpu->reg[instr->rd] = 0;
-            break;
+            // ADD TRAP HERE
+            perror("Error divide by zero");
+            exit(1);
         }
 
         // case 0x0C:  DO WHEN FLAGS ARE IMPLEMENTED
         //     break;
 
     case 0x0D:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1];
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = cpu->reg[instr->rs1];
+        break;
 
     case 0x0E:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = ~(cpu->reg[instr->rs1]);
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = ~(cpu->reg[instr->rs1]);
+        break;
 
     case 0x0F:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = 0 - (cpu->reg[instr->rs1]);
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = 0 - (cpu->reg[instr->rs1]);
+        break;
 
     default:
         break;
     }
 }
 
-void isIType(Instruction *instr, CPU *cpu)
+void isIType(Instruction *instr, CPU *cpu, Execute_Register *reg)
 {
 
     switch (instr->Opcode)
     {
     case 0x10:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] + instr->imm;
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = cpu->reg[instr->rs1] + instr->imm;
+        break;
+
     case 0x11:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] - instr->imm;
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+
+        reg->value = cpu->reg[instr->rs1] - instr->imm;
+        break;
 
     case 0x12:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] & instr->imm;
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
 
-    case 0x04:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] | cpu->reg[instr->rs2];
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+        reg->value = cpu->reg[instr->rs1] & instr->imm;
+        break;
 
-    case 0x05:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] ^ cpu->reg[instr->rs2];
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+    case 0x13:
 
-    case 0x06:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] << (cpu->reg[instr->rs2] & 31);
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+        reg->value = cpu->reg[instr->rs1] | instr->imm;
+        break;
 
-    case 0x07:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1] >> (cpu->reg[instr->rs2] & 31);
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+    case 0x14:
 
-    case 0x08:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = (int32_t)cpu->reg[instr->rs1] >> (cpu->reg[instr->rs2] & 31);
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
-    case 0x09:
-        if (instr->rd != 0)
-        {
-            int64_t result = (int64_t)(int32_t)cpu->reg[instr->rs1] * (int64_t)(int32_t)cpu->reg[instr->rs2];
-            cpu->reg[instr->rd] = (uint32_t)result;
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+        reg->value = cpu->reg[instr->rs1] ^ instr->imm;
+        break;
 
-    case 0x0A:
-        if (instr->rd != 0)
-        {
-            if (cpu->reg[instr->rs2] != 0)
-            {
-                cpu->reg[instr->rd] = (uint32_t)((int32_t)cpu->reg[instr->rs1] / (int32_t)cpu->reg[instr->rs2]);
-                break;
-            }
-            else
-            {
-                // ADD TRAP HERE
-                perror("Error divide by zero");
-                exit(1);
-            }
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+    case 0x15:
 
-    case 0x0B:
-        if (instr->rd != 0)
-        {
-            if (cpu->reg[instr->rs2] != 0)
-            {
-                cpu->reg[instr->rd] = (uint32_t)((int32_t)cpu->reg[instr->rs1] % (int32_t)cpu->reg[instr->rs2]);
-                break;
-            }
-            else
-            {
-                // ADD TRAP HERE
-                perror("Error divide by zero");
-                exit(1);
-            }
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+        reg->value = cpu->reg[instr->rs1] << (instr->imm & 31);
+        break;
 
-        // case 0x0C:  DO WHEN FLAGS ARE IMPLEMENTED
-        //     break;
+    case 0x16:
 
-    case 0x0D:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = cpu->reg[instr->rs1];
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+        reg->value = cpu->reg[instr->rs1] >> (instr->imm & 31);
+        break;
 
-    case 0x0E:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = ~(cpu->reg[instr->rs1]);
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+    case 0x17:
 
-    case 0x0F:
-        if (instr->rd != 0)
-        {
-            cpu->reg[instr->rd] = 0 - (cpu->reg[instr->rs1]);
-            break;
-        }
-        else
-        {
-            cpu->reg[instr->rd] = 0;
-            break;
-        }
+        reg->value = (int32_t)cpu->reg[instr->rs1] >> (instr->imm & 31);
+        break;
+
+    case 0x19:
+
+        reg->value = instr->imm;
+        break;
+
+    case 0x1A:
+
+        reg->value = cpu->reg[instr->rs1] + instr->imm;
+        break;
+
+    case 0x1B:
+
+        reg->value = cpu->reg[instr->rs1] + instr->imm;
+        break;
+
+    case 0x1C:
+
+        reg->value = cpu->reg[instr->rs1] + instr->imm;
+        break;
+
+    case 0x1D:
+
+        reg->value = cpu->reg[instr->rs1] + instr->imm;
+        break;
+
+    case 0x1E:
+
+        reg->value = cpu->reg[instr->rs1] + instr->imm;
+        break;
 
     default:
         break;
     }
 }
 
-void isSType(Instruction *instr, uint32_t *Mem, CPU *cpu);
+void isSType(Instruction *instr, CPU *cpu, Execute_Register *reg)
+{
+    switch (instr->Opcode)
+    {
 
-void isBType(Instruction *instr, uint32_t *Mem, CPU *cpu);
+    case 0x1F:
 
-void isJType(Instruction *instr, uint32_t *Mem, CPU *cpu);
+        reg->value = cpu->reg[instr->rs1] + instr->imm;
+        break;
 
-void isPType(Instruction *instr, uint32_t *Mem, CPU *cpu);
+    case 0x20:
+
+        reg->value = cpu->reg[instr->rs1] + instr->imm;
+        break;
+
+    case 0x21:
+
+        reg->value = cpu->reg[instr->rs1] + instr->imm;
+        break;
+
+    default:
+        break;
+    }
+}
+
+// void isBType(Instruction *instr, CPU *cpu, Execute_Register *reg);
+
+// void isJType(Instruction *instr, CPU *cpu, Execute_Register *reg);
+
+void isPType(Instruction *instr, CPU *cpu)
+{
+    if (instr->Opcode == 0x32)
+    {
+        cpu->halted = 1;
+        return;
+    }
+}
+
+void freeExRegister(Execute_Register *reg)
+{
+    free(reg);
+    return;
+}
