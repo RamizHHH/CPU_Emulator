@@ -23,7 +23,7 @@ void isIType(Instruction *instr, CPU *cpu, Execute_Register *reg);
 
 void isSType(Instruction *instr, CPU *cpu, Execute_Register *reg);
 
-// void isBType(Instruction *instr, CPU *cpu, Execute_Register *reg);
+void isBType(Instruction *instr, CPU *cpu);
 
 // void isJType(Instruction *instr, CPU *cpu, Execute_Register *reg);
 

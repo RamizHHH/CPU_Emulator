@@ -1,12 +1,14 @@
-#include <stdio.h>
-#include <string.h>
+#pragma once
 #include <stdlib.h>
 #include <stdint.h>
+#include "Label.h"
+#include <string.h>
+#include <stdio.h>
 
 #ifndef ASSEMBLE_H
 #define ASSEMBLE_H
 
-uint32_t AssembleLine(char *line);
+uint32_t AssembleLine(char *line, Label **list, int currentAddress);
 
 typedef enum
 {
@@ -45,15 +47,20 @@ typedef enum
     OP_STH = 0x20,
     OP_STB = 0x21,
 
+    OP_BEQ = 0x22,
+
     OP_HALT = 0x32
 
 } Opcode;
 
 int parseRegister(const char *str);
 
+int16_t LabelEncode(char *label, Label **list, int currentAddress);
+
 uint32_t EncodeR(uint8_t opcode, uint8_t rd, uint8_t rs1, uint8_t rs2);
 uint32_t EncodeI(uint8_t opcode, uint8_t rd, uint8_t rs1, int16_t imm);
 uint32_t EncodeS(uint8_t opcode, uint8_t rs2, uint8_t rs1, int16_t imm);
 uint32_t EncodeP(uint8_t opcode);
+uint32_t EncodeB(uint8_t opcode, uint8_t rs2, uint8_t rs1, int16_t LabelAddress);
 
 #endif

@@ -1,6 +1,9 @@
 #include "Assemble.h"
 
-uint32_t AssembleLine(char *line)
+#include <stdint.h>
+#include <string.h>
+
+uint32_t AssembleLine(char *line, Label **list, int currentAddress)
 {
     char *tokens[8];
 
@@ -12,8 +15,7 @@ uint32_t AssembleLine(char *line)
     {
         tokens[count++] = token;
 
-        token =
-            strtok(NULL, " ,\t\n");
+        token = strtok(NULL, " ,\t\n");
     }
 
     if (count == 0)
@@ -71,6 +73,16 @@ uint32_t AssembleLine(char *line)
 
         return (EncodeS(OP_ST, rs2, rs1, imm));
     }
+    if (strcmp(tokens[0], "BEQ") == 0)
+    {
+        int rs2 = parseRegister(tokens[1]);
+        int rs1 = parseRegister(tokens[2]);
+        char *label = tokens[3];
+
+        int16_t imm = LabelEncode(label, list, currentAddress);
+
+        return (EncodeB(OP_BEQ, rs2, rs1, imm));
+    }
 
     if (strcmp(tokens[0], "HALT") == 0)
     {
@@ -105,4 +117,28 @@ uint32_t EncodeP(uint8_t opcode)
 uint32_t EncodeS(uint8_t opcode, uint8_t rs2, uint8_t rs1, int16_t imm)
 {
     return ((uint32_t)opcode << 26) | ((uint32_t)rs2 << 21) | ((uint32_t)rs1 << 16) | ((uint16_t)imm);
+}
+
+uint32_t EncodeB(uint8_t opcode, uint8_t rs2, uint8_t rs1, int16_t LabelAddress)
+{
+    return ((uint32_t)opcode << 26) | ((uint32_t)rs2 << 21) | ((uint32_t)rs1 << 16) | (LabelAddress);
+}
+
+int16_t LabelEncode(char *label, Label **list, int currentAddress)
+{
+    for (int i = 0; i < 512; ++i)
+    {
+        if (label == NULL)
+        {
+            continue;
+        }
+        if (strcmp(list[i]->name, label) == 0)
+        {
+            uint32_t temp = list[i]->address;
+            int16_t actualAddress = temp - (currentAddress + 4);
+            return actualAddress;
+        }
+    }
+    printf("Undefined label: %s\n", label);
+    exit(1);
 }

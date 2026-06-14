@@ -15,8 +15,7 @@ void Pipeline(CPU *cpu, uint32_t *mem)
         WriteBackExecute(decodedInstr, ExReg, cpu, memReg);
     }
 
-    printf("%u\n", cpu->reg[4]);
-    printf("%u\n", cpu->reg[0]);
+    printf("%u\n", cpu->reg[3]);
 
     freeExRegister(ExReg);
     MemRegFree(memReg);

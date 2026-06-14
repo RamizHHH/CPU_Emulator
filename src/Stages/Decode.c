@@ -33,6 +33,10 @@ void DecodeOpcode(uint32_t RawInstr, Instruction *instr)
         DecodeIType(RawInstr, instr);
         break;
 
+    case 'B':
+        DecodeBType(RawInstr, instr);
+        break;
+
     default:
         break;
     }
@@ -55,6 +59,14 @@ void DecodeIType(uint32_t RawInstr, Instruction *instr)
 }
 
 void DecodeSType(uint32_t RawInstr, Instruction *instr)
+{
+    instr->rs1 = (RawInstr >> 16) & 0x1F;
+    instr->rs2 = (RawInstr >> 21) & 0x1F;
+    instr->rd = 0;
+    instr->imm = RawInstr & 0xFFFF;
+}
+
+void DecodeBType(uint32_t RawInstr, Instruction *instr)
 {
     instr->rs1 = (RawInstr >> 16) & 0x1F;
     instr->rs2 = (RawInstr >> 21) & 0x1F;

@@ -24,6 +24,11 @@ void ExecuteInstr(Instruction *instr, CPU *cpu, Execute_Register *reg)
         isPType(instr, cpu);
         return;
     }
+    else if (instr->Type == 'B')
+    {
+        isBType(instr, cpu);
+        return;
+    }
     else
     {
         perror("Invalid Instruction");
@@ -238,7 +243,16 @@ void isSType(Instruction *instr, CPU *cpu, Execute_Register *reg)
     }
 }
 
-// void isBType(Instruction *instr, CPU *cpu, Execute_Register *reg);
+void isBType(Instruction *instr, CPU *cpu)
+{
+    if (instr->Opcode == 0x22)
+    {
+        if (cpu->reg[instr->rs1] == cpu->reg[instr->rs2])
+        {
+            cpu->pc += instr->imm;
+        }
+    }
+}
 
 // void isJType(Instruction *instr, CPU *cpu, Execute_Register *reg);
 
