@@ -25,7 +25,7 @@ void isSType(Instruction *instr, CPU *cpu, Execute_Register *reg);
 
 void isBType(Instruction *instr, CPU *cpu);
 
-// void isJType(Instruction *instr, CPU *cpu, Execute_Register *reg);
+void isJType(Instruction *instr, CPU *cpu, Execute_Register *reg);
 
 void isPType(Instruction *instr, CPU *cpu);
 

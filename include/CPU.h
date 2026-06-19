@@ -18,7 +18,7 @@ typedef struct
     uint8_t rs1;
     uint8_t rs2;
     uint8_t rd;
-    uint16_t imm;
+    int16_t imm;
     uint32_t OgInstr;
 
 } Instruction;

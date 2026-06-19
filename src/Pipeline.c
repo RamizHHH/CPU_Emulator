@@ -9,13 +9,11 @@ void Pipeline(CPU *cpu, uint32_t *mem)
     {
         uint32_t intsr = FetchInstruction(mem, cpu);
         Instruction *decodedInstr = DecodeStage(intsr);
-
         ExecuteStage(decodedInstr, cpu, ExReg);
         MemStageExecute(decodedInstr, ExReg, mem, cpu, memReg);
         WriteBackExecute(decodedInstr, ExReg, cpu, memReg);
+        printf("%d\n", cpu->reg[1]);
     }
-
-    printf("%u\n", cpu->reg[3]);
 
     freeExRegister(ExReg);
     MemRegFree(memReg);

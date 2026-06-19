@@ -17,6 +17,8 @@ void DecodeOpcode(uint32_t RawInstr, Instruction *instr)
     uint32_t opcode = RightShifted & 0x3F;
 
     instr->Opcode = opcode;
+    // printf("RawInstr = 0x%08X\n", RawInstr);
+    // printf("Opcode = %u\n", opcode);
     checkType(instr);
 
     switch (instr->Type)
@@ -35,6 +37,10 @@ void DecodeOpcode(uint32_t RawInstr, Instruction *instr)
 
     case 'B':
         DecodeBType(RawInstr, instr);
+        break;
+
+    case 'J':
+        DecodeJType(RawInstr, instr);
         break;
 
     default:
@@ -74,6 +80,31 @@ void DecodeBType(uint32_t RawInstr, Instruction *instr)
     instr->imm = RawInstr & 0xFFFF;
 }
 
+void DecodeJType(uint32_t RawInstr, Instruction *instr)
+{
+    if (instr->Opcode == 0x28)
+    {
+        instr->rs1 = 0;
+        instr->rs2 = 0;
+        instr->rd = 0;
+        instr->imm = (int16_t)RawInstr & 0xFFFF;
+    }
+    else if (instr->Opcode == 0x29)
+    {
+        instr->rs1 = 0;
+        instr->rs2 = 0;
+        instr->rd = (RawInstr >> 21) & 0x1F;
+        instr->imm = (int16_t)RawInstr & 0xFFFF;
+    }
+    else if (instr->Opcode == 0x29)
+    {
+        instr->rs1 = (RawInstr >> 16) & 0x1F;
+        instr->rs2 = 0;
+        instr->rd = (RawInstr >> 21) & 0x1F;
+        instr->imm = (int16_t)RawInstr & 0xFFFF;
+    }
+}
+
 void checkType(Instruction *instr)
 {
     if (instr->Opcode >= 0x01 && instr->Opcode <= 0xF)
@@ -96,7 +127,6 @@ void checkType(Instruction *instr)
     {
         instr->Type = 'J';
     }
-
     else if (instr->Opcode >= 0x2B && instr->Opcode <= 0x33)
     {
         instr->Type = 'P';

@@ -29,6 +29,11 @@ void ExecuteInstr(Instruction *instr, CPU *cpu, Execute_Register *reg)
         isBType(instr, cpu);
         return;
     }
+    else if (instr->Type == 'J')
+    {
+        isJType(instr, cpu, reg);
+        return;
+    }
     else
     {
         perror("Invalid Instruction");
@@ -252,9 +257,60 @@ void isBType(Instruction *instr, CPU *cpu)
             cpu->pc += instr->imm;
         }
     }
+    if (instr->Opcode == 0x23)
+    {
+        if (cpu->reg[instr->rs1] != cpu->reg[instr->rs2])
+        {
+            cpu->pc += instr->imm;
+        }
+    }
+    if (instr->Opcode == 0x24)
+    {
+        if ((int32_t)cpu->reg[instr->rs1] <= (int32_t)cpu->reg[instr->rs2])
+        {
+            cpu->pc += instr->imm;
+        }
+    }
+    if (instr->Opcode == 0x25)
+    {
+        if ((int32_t)cpu->reg[instr->rs1] >= (int32_t)cpu->reg[instr->rs2])
+        {
+            cpu->pc += instr->imm;
+        }
+    }
+    if (instr->Opcode == 0x26)
+    {
+        if (cpu->reg[instr->rs1] <= cpu->reg[instr->rs2])
+        {
+            cpu->pc += instr->imm;
+        }
+    }
+    if (instr->Opcode == 0x27)
+    {
+        if (cpu->reg[instr->rs1] >= cpu->reg[instr->rs2])
+        {
+            cpu->pc += instr->imm;
+        }
+    }
 }
 
-// void isJType(Instruction *instr, CPU *cpu, Execute_Register *reg);
+void isJType(Instruction *instr, CPU *cpu, Execute_Register *reg)
+{
+    if (instr->Opcode == 0x28)
+    {
+        cpu->pc += instr->imm;
+    }
+    else if (instr->Opcode == 0x29)
+    {
+        cpu->pc += instr->imm;
+        reg->value = cpu->pc + 4; // To Fix!
+    }
+    else if (instr->Opcode == 0x2A)
+    {
+        reg->value = cpu->pc + 4;
+        cpu->pc += (cpu->reg[instr->rs1] + instr->imm) & ~1;
+    }
+}
 
 void isPType(Instruction *instr, CPU *cpu)
 {

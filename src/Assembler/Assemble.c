@@ -19,61 +19,66 @@ uint32_t AssembleLine(char *line, Label **list, int currentAddress)
     }
 
     if (count == 0)
+    {
         return 0;
-
-    if (strcmp(tokens[0], "MOVI") == 0)
-    {
-        int rd = parseRegister(tokens[1]);
-        int imm = strtol(tokens[2], NULL, 0);
-
-        return (EncodeI(OP_MOVI, rd, 0, imm));
     }
 
-    if (strcmp(tokens[0], "ADD") == 0)
-    {
-        int rd = parseRegister(tokens[1]);
-        int rs1 = parseRegister(tokens[2]);
-        int rs2 = parseRegister(tokens[3]);
+    uint32_t instr = CheckInstr(tokens, list, currentAddress);
 
-        return (EncodeR(OP_ADD, rd, rs1, rs2));
-    }
+    return instr;
+}
 
-    if (strcmp(tokens[0], "SUB") == 0)
+uint32_t CheckInstr(char **tokens, Label **list, int currentAddress)
+{
+
+    uint8_t opcode = checkOpcode(tokens[0]);
+
+    if (opcode >= 0x01 && opcode <= 0x0F)
     {
         int rd = parseRegister(tokens[1]);
         int rs1 = parseRegister(tokens[2]);
         int rs2 = parseRegister(tokens[3]);
 
-        return (EncodeR(OP_SUB, rd, rs1, rs2));
+        return (EncodeR(opcode, rd, rs1, rs2));
     }
-
-    if (strcmp(tokens[0], "ADDI") == 0)
+    else if (opcode >= 0x10 && opcode <= 0x19)
     {
-        int rd = parseRegister(tokens[1]);
-        int rs1 = parseRegister(tokens[2]);
-        int imm = strtol(tokens[3], NULL, 0);
+        if (opcode == 0x19)
+        {
+            int rd = parseRegister(tokens[1]);
+            int imm = strtol(tokens[2], NULL, 0);
 
-        return (EncodeI(OP_ADDI, rd, rs1, imm));
+            return (EncodeI(opcode, rd, 0, imm));
+        }
+        else
+        {
+            int rd = parseRegister(tokens[1]);
+            int rs1 = parseRegister(tokens[2]);
+            int imm = strtol(tokens[3], NULL, 0);
+
+            return (EncodeI(opcode, rd, rs1, imm));
+        }
     }
-
-    if (strcmp(tokens[0], "LD") == 0)
+    else if (opcode >= 0x1A && opcode <= 0x1F)
     {
-        int rd = parseRegister(tokens[1]);
-        int rs1 = parseRegister(tokens[2]);
-        int imm = strtol(tokens[3], NULL, 0);
+        if (opcode <= 0x1E)
+        {
+            int rd = parseRegister(tokens[1]);
+            int rs1 = parseRegister(tokens[2]);
+            int imm = strtol(tokens[3], NULL, 0);
 
-        return (EncodeI(OP_LD, rd, rs1, imm));
+            return (EncodeI(opcode, rd, rs1, imm));
+        }
+        else if (opcode > 0x1E && opcode <= 0x21)
+        {
+            int rs2 = parseRegister(tokens[1]);
+            int rs1 = parseRegister(tokens[2]);
+            int imm = strtol(tokens[3], NULL, 0);
+
+            return (EncodeS(opcode, rs2, rs1, imm));
+        }
     }
-
-    if (strcmp(tokens[0], "ST") == 0)
-    {
-        int rs2 = parseRegister(tokens[1]);
-        int rs1 = parseRegister(tokens[2]);
-        int imm = strtol(tokens[3], NULL, 0);
-
-        return (EncodeS(OP_ST, rs2, rs1, imm));
-    }
-    if (strcmp(tokens[0], "BEQ") == 0)
+    else if (opcode >= 0x22 && opcode <= 0x27)
     {
         int rs2 = parseRegister(tokens[1]);
         int rs1 = parseRegister(tokens[2]);
@@ -81,15 +86,57 @@ uint32_t AssembleLine(char *line, Label **list, int currentAddress)
 
         int16_t imm = LabelEncode(label, list, currentAddress);
 
-        return (EncodeB(OP_BEQ, rs2, rs1, imm));
+        return (EncodeB(opcode, rs2, rs1, imm));
     }
-
-    if (strcmp(tokens[0], "HALT") == 0)
+    else if (opcode >= 0x28 && opcode <= 0x2A)
     {
-        return EncodeP(OP_HALT);
-    }
+        if (opcode == 0x28)
+        {
+            char *label = tokens[1];
 
+            int16_t imm = LabelEncode(label, list, currentAddress);
+
+            return (EncodeJ(opcode, 0, 0, imm));
+        }
+        else if (opcode == 0x29)
+        {
+            int rd = parseRegister(tokens[1]);
+            char *label = tokens[2];
+
+            int16_t imm = LabelEncode(label, list, currentAddress);
+
+            return (EncodeJ(opcode, rd, 0, imm));
+        }
+        else if (opcode == 0x2A)
+        {
+            int rd = parseRegister(tokens[1]);
+            int rs1 = parseRegister(tokens[2]);
+            char *label = tokens[3];
+
+            int16_t imm = LabelEncode(label, list, currentAddress);
+
+            return (EncodeJ(opcode, rd, rs1, imm));
+        }
+    }
+    else if (opcode >= 0x32)
+    {
+        return EncodeP(opcode);
+    }
     return 0;
+}
+
+uint8_t checkOpcode(const char *opcode)
+{
+    size_t size = sizeof(opcodeTable) / sizeof(opcodeTable[0]);
+
+    for (size_t i = 0; i < size; ++i)
+    {
+        if (strcmp(opcode, opcodeTable[i].name) == 0)
+        {
+            return opcodeTable[i].opcode;
+        }
+    }
+    return -1;
 }
 
 int parseRegister(const char *str)
@@ -99,6 +146,25 @@ int parseRegister(const char *str)
         return -1;
     }
     return atoi(str + 1);
+}
+
+int16_t LabelEncode(char *label, Label **list, int currentAddress)
+{
+    for (int i = 0; i < 512; ++i)
+    {
+        if (label == NULL)
+        {
+            continue;
+        }
+        if (strcmp(list[i]->name, label) == 0)
+        {
+            uint32_t temp = list[i]->address;
+            int16_t actualAddress = temp - (currentAddress + 4);
+            return actualAddress;
+        }
+    }
+    printf("Undefined label: %s\n", label);
+    exit(1);
 }
 
 uint32_t EncodeR(uint8_t opcode, uint8_t rd, uint8_t rs1, uint8_t rs2)
@@ -121,24 +187,22 @@ uint32_t EncodeS(uint8_t opcode, uint8_t rs2, uint8_t rs1, int16_t imm)
 
 uint32_t EncodeB(uint8_t opcode, uint8_t rs2, uint8_t rs1, int16_t LabelAddress)
 {
-    return ((uint32_t)opcode << 26) | ((uint32_t)rs2 << 21) | ((uint32_t)rs1 << 16) | (LabelAddress);
+    return ((uint32_t)opcode << 26) | ((uint32_t)rs2 << 21) | ((uint32_t)rs1 << 16) | ((uint16_t)LabelAddress);
 }
 
-int16_t LabelEncode(char *label, Label **list, int currentAddress)
+uint32_t EncodeJ(uint8_t opcode, uint8_t rs1, uint8_t rd, int16_t LabelAddress)
 {
-    for (int i = 0; i < 512; ++i)
+    if (opcode == 0x28)
     {
-        if (label == NULL)
-        {
-            continue;
-        }
-        if (strcmp(list[i]->name, label) == 0)
-        {
-            uint32_t temp = list[i]->address;
-            int16_t actualAddress = temp - (currentAddress + 4);
-            return actualAddress;
-        }
+        return ((uint32_t)opcode << 26) | ((uint32_t)0 << 21) | ((uint32_t)0 << 16) | (uint16_t)(LabelAddress);
     }
-    printf("Undefined label: %s\n", label);
-    exit(1);
+    else if (opcode == 0x29)
+    {
+        return ((uint32_t)opcode << 26) | ((uint32_t)rd << 21) | ((uint32_t)0 << 16) | (uint16_t)(LabelAddress);
+    }
+    else if (opcode == 0x2A)
+    {
+        return ((uint32_t)opcode << 26) | ((uint32_t)rd << 21) | ((uint32_t)rs1 << 16) | (uint16_t)(LabelAddress);
+    }
+    return 0;
 }
