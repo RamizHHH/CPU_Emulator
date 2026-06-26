@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void readFile(FILE *input, FILE *output, Label *list[512], int address);
+
 int main(int agrc, char *argv[])
 {
     if (agrc < 2)
@@ -43,19 +45,8 @@ int main(int agrc, char *argv[])
 
     rewind(inputFile);
 
-    while (fgets(line, sizeof(line), inputFile))
-    {
-        if (CheckLabel(line))
-        {
-            continue;
-        }
+    readFile(inputFile, Output, list, currentAddress);
 
-        uint32_t instruction = AssembleLine(line, list, currentAddress);
-
-        currentAddress += 4;
-
-        fwrite(&instruction, sizeof(instruction), 1, Output);
-    }
     fclose(inputFile);
     fclose(Output);
 
@@ -65,4 +56,22 @@ int main(int agrc, char *argv[])
     }
 
     return 0;
+}
+
+void readFile(FILE *input, FILE *output, Label *list[512], int address)
+{
+    char line[512];
+    while (fgets(line, sizeof(line), input))
+    {
+        if (CheckLabel(line))
+        {
+            continue;
+        }
+
+        uint32_t instruction = AssembleLine(line, list, address);
+
+        address += 4;
+
+        fwrite(&instruction, sizeof(instruction), 1, output);
+    }
 }

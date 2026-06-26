@@ -302,8 +302,9 @@ void isJType(Instruction *instr, CPU *cpu, Execute_Register *reg)
     }
     else if (instr->Opcode == 0x29)
     {
+
+        reg->value = cpu->pc + 4;
         cpu->pc += instr->imm;
-        reg->value = cpu->pc + 4; // To Fix!
     }
     else if (instr->Opcode == 0x2A)
     {

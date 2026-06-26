@@ -30,10 +30,10 @@ void WriteBack(Instruction *instr, Execute_Register *reg, CPU *cpu, Memory_Regis
             cpu->reg[instr->rd] = reg->value;
             cpu->reg[0] = 0;
         }
-        else if (cpu->halted == 1)
-        {
-            printf("CPU Halted!\n");
-        }
+        // else if (cpu->halted == 1)
+        // {
+        //     printf("CPU Halted!\n");
+        // }
 
         break;
     }

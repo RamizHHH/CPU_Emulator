@@ -96,7 +96,7 @@ void DecodeJType(uint32_t RawInstr, Instruction *instr)
         instr->rd = (RawInstr >> 21) & 0x1F;
         instr->imm = (int16_t)RawInstr & 0xFFFF;
     }
-    else if (instr->Opcode == 0x29)
+    else if (instr->Opcode == 0x2A)
     {
         instr->rs1 = (RawInstr >> 16) & 0x1F;
         instr->rs2 = 0;

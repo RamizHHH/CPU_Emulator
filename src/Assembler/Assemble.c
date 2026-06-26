@@ -105,7 +105,7 @@ uint32_t CheckInstr(char **tokens, Label **list, int currentAddress)
 
             int16_t imm = LabelEncode(label, list, currentAddress);
 
-            return (EncodeJ(opcode, rd, 0, imm));
+            return (EncodeJ(opcode, 0, rd, imm));
         }
         else if (opcode == 0x2A)
         {
@@ -115,7 +115,7 @@ uint32_t CheckInstr(char **tokens, Label **list, int currentAddress)
 
             int16_t imm = LabelEncode(label, list, currentAddress);
 
-            return (EncodeJ(opcode, rd, rs1, imm));
+            return (EncodeJ(opcode, rs1, rd, imm));
         }
     }
     else if (opcode >= 0x32)
