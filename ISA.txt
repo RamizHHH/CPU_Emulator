@@ -187,9 +187,7 @@ Jumps:
 - JAL rd, target: rd = pc + 4, pc = target
 - JALR rd, rs1, imm: rd = pc + 4, pc = (rs1 + sign_extend(imm)) & ~1
 
-Stack and subroutines:
-- PUSH rs1: sp = sp - 4, store rs1 to [sp]
-- POP rd: load from [sp] to rd, sp = sp + 4
+Subroutines:
 - CALL target: push return address, jump to target
 - RET: pop return address into pc
 

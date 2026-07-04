@@ -1,4 +1,5 @@
 #include "CPU.h"
+#include "CPU_Memory.h"
 #include <stdlib.h>
 
 CPU *initalizeCPU()
@@ -14,7 +15,9 @@ CPU *initalizeCPU()
         cpu->reg[i] = 0;
     }
     cpu->pc = 0;
+    cpu->reg[25] = STACK_TOP;
     cpu->halted = 0;
+
     return cpu;
 }
 

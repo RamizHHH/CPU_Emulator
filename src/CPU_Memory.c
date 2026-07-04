@@ -8,12 +8,23 @@ uint32_t *initalizeMemory(int size)
 
 uint32_t readMemory(uint32_t offset, uint32_t *mem)
 {
+    if (offset < TEXT_END || offset >= MAX_MEMORY_SIZE)
+    {
+        perror("Invalid Memory Location\n");
+        exit(1);
+    }
+
     uint32_t value = *(mem + offset);
     return value;
 }
 
 void WriteMemory(uint32_t offset, uint32_t *mem, uint32_t value)
 {
+    if (offset < TEXT_END || offset >= MAX_MEMORY_SIZE)
+    {
+        perror("Invalid Memory Location\n");
+        exit(1);
+    }
     *(mem + offset) = value;
 }
 

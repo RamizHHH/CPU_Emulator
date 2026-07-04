@@ -5,8 +5,6 @@
 #include "CPU_Memory.h"
 #include "Pipeline.h"
 
-#define MAX_MEMORY_SIZE 2048
-
 int main(int argc, char *argv[])
 {
     if (argc < 2)
@@ -30,7 +28,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    loadProgram(CPU_Mem, argv[1], MAX_MEMORY_SIZE);
+    loadProgram(CPU_Mem, argv[1], TEXT_END);
 
     Pipeline(cpu, CPU_Mem);
 

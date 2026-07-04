@@ -9,6 +9,8 @@ void Pipeline(CPU *cpu, uint32_t *mem)
     while (cpu->halted != 1)
     {
 
+        printf("%d\n", cpu->reg[25]);
+
         uint32_t intsr = FetchInstruction(mem, cpu);
 
         Instruction *decodedInstr = DecodeStage(intsr);

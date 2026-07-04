@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifndef CPU_H
 #define CPU_H
@@ -9,6 +10,7 @@ typedef struct
     int halted;
     uint32_t reg[32];
     uint32_t pc;
+
 } CPU;
 
 typedef struct
@@ -24,6 +26,7 @@ typedef struct
 } Instruction;
 
 CPU *initalizeCPU();
+
 void freeCPU(CPU *cpu);
 
 #endif

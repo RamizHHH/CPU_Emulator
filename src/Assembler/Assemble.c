@@ -28,6 +28,28 @@ uint32_t AssembleLine(char *line, Label **list, int currentAddress)
     return instr;
 }
 
+static char *cleanToken(char *token)
+{
+    if (token == NULL)
+    {
+        return token;
+    }
+
+    while (*token == '[')
+    {
+        token++;
+    }
+
+    size_t len = strlen(token);
+    while (len > 0 && token[len - 1] == ']')
+    {
+        token[len - 1] = '\0';
+        len--;
+    }
+
+    return token;
+}
+
 uint32_t CheckInstr(char **tokens, Label **list, int currentAddress)
 {
 
@@ -64,16 +86,16 @@ uint32_t CheckInstr(char **tokens, Label **list, int currentAddress)
         if (opcode <= 0x1E)
         {
             int rd = parseRegister(tokens[1]);
-            int rs1 = parseRegister(tokens[2]);
-            int imm = strtol(tokens[3], NULL, 0);
+            int rs1 = parseRegister(cleanToken(tokens[2]));
+            int imm = strtol(cleanToken(tokens[4]), NULL, 0);
 
             return (EncodeI(opcode, rd, rs1, imm));
         }
         else if (opcode > 0x1E && opcode <= 0x21)
         {
             int rs2 = parseRegister(tokens[1]);
-            int rs1 = parseRegister(tokens[2]);
-            int imm = strtol(tokens[3], NULL, 0);
+            int rs1 = parseRegister(cleanToken(tokens[2]));
+            int imm = strtol(cleanToken(tokens[4]), NULL, 0);
 
             return (EncodeS(opcode, rs2, rs1, imm));
         }
@@ -141,6 +163,10 @@ uint8_t checkOpcode(const char *opcode)
 
 int parseRegister(const char *str)
 {
+    if (strcmp(str, "sp") == 0)
+    {
+        return 25;
+    }
     if (str[0] != 'r')
     {
         return -1;

@@ -20,6 +20,8 @@ void DecodeBType(uint32_t RawInstr, Instruction *instr);
 
 void DecodeJType(uint32_t RawInstr, Instruction *instr);
 
+void DecodeTType(uint32_t RawInstr, Instruction *instr);
+
 void checkType(Instruction *instr);
 
 void FreeInstr(Instruction *instr);
