@@ -140,6 +140,15 @@ uint32_t CheckInstr(char **tokens, Label **list, int currentAddress)
             return (EncodeJ(opcode, rs1, rd, imm));
         }
     }
+    else if (opcode == 0x2E)
+    {
+        int rd = 0;
+        int rs1 = 1;
+
+        int16_t imm = 0;
+
+        return (EncodeJ(0x2A, rs1, rd, imm));
+    }
     else if (opcode >= 0x32)
     {
         return EncodeP(opcode);

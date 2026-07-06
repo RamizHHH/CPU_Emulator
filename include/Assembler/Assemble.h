@@ -64,6 +64,8 @@ typedef enum
     OP_JAL = 0x29,
     OP_JALR = 0x2A,
 
+    OP_RET = 0x2E,
+
     OP_HALT = 0x32
 
 } Opcode;
@@ -112,6 +114,8 @@ static const OpcodeEntry opcodeTable[] =
         {"JMP", OP_JMP},
         {"JAL", OP_JAL},
         {"JALR", OP_JALR},
+
+        {"RET", OP_RET},
 
         {"HALT", OP_HALT},
 };

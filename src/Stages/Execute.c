@@ -31,6 +31,7 @@ void ExecuteInstr(Instruction *instr, CPU *cpu, Execute_Register *reg)
     }
     else if (instr->Type == 'J')
     {
+
         isJType(instr, cpu, reg);
         return;
     }
@@ -303,13 +304,13 @@ void isJType(Instruction *instr, CPU *cpu, Execute_Register *reg)
     else if (instr->Opcode == 0x29)
     {
 
-        reg->value = cpu->pc + 4;
+        reg->value = cpu->pc;
         cpu->pc += instr->imm;
     }
     else if (instr->Opcode == 0x2A)
     {
-        reg->value = cpu->pc + 4;
-        cpu->pc += (cpu->reg[instr->rs1] + instr->imm) & ~1;
+        reg->value = cpu->pc;
+        cpu->pc = (cpu->reg[instr->rs1] + instr->imm) & ~1;
     }
 }
 

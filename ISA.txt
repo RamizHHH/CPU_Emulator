@@ -1,9 +1,8 @@
-CUSTOM CPU ISA: Issac-32
+Issac-32 Custom Instruction Set Architecture (ISA)
 
 1. Overview
 
-Issac-32 is a simple 32-bit load/store instruction set architecture designed for a small emulator or educational CPU.
-It is intentionally regular and easy to decode.
+Issac-32 is a simple 32-bit load/store instruction set architecture inspired by RISC-V.
 
 Core goals:
 - Fixed 32-bit instruction width
@@ -108,8 +107,6 @@ Format types:
 0x29 JAL
 0x2A JALR
 
-0x2B PUSH
-0x2C POP
 0x2D CALL
 0x2E RET
 
@@ -188,7 +185,6 @@ Jumps:
 - JALR rd, rs1, imm: rd = pc + 4, pc = (rs1 + sign_extend(imm)) & ~1
 
 Subroutines:
-- CALL target: push return address, jump to target
 - RET: pop return address into pc
 
 7. Register Convention
@@ -207,8 +203,6 @@ Recommended software convention:
 - r26: frame pointer
 - r27: link register
 - r28 to r31: reserved
-
-If you want a simpler emulator, you can ignore this convention and let all registers behave the same except r0.
 
 8. Immediate Fields
 
