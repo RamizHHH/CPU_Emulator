@@ -42,7 +42,7 @@ void Pipeline(CPU *cpu, uint32_t *mem)
         *PipelineRegisters[EX_MEM_Current] = *PipelineRegisters[EX_MEM_Next];
         *PipelineRegisters[MEM_WB_Current] = *PipelineRegisters[MEM_WB_Next];
 
-        cycle += 1;
+        cycle++;
     }
 
     FreePipelineReg(PipelineRegisters);
