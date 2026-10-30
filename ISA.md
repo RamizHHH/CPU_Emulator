@@ -1,4 +1,4 @@
-Rex-32 Custom Instruction Set Architecture (ISA)
+# Rex-32 Custom Instruction Set Architecture (ISA)
 
 1. Overview
 

@@ -8,6 +8,7 @@ void Pipeline(CPU *cpu, uint32_t *mem)
 
     while (cpu->halted != 1)
     {
+        // This might be not best practice but we will role with it for not.
         memset(PipelineRegisters[IF_ID_Next], 0, sizeof(Pipeline_Reg));
         memset(PipelineRegisters[ID_EX_Next], 0, sizeof(Pipeline_Reg));
         memset(PipelineRegisters[EX_MEM_Next], 0, sizeof(Pipeline_Reg));
@@ -76,11 +77,14 @@ void printInstrStages(int Cycle, CPU *cpu, Pipeline_Reg **Registers)
 Pipeline_Reg **InitalizePipelineReg()
 {
     Pipeline_Reg **Arr = (Pipeline_Reg **)malloc(8 * sizeof(Pipeline_Reg *));
+
     for (int i = 0; i < 8; ++i)
     {
         Arr[i] = (Pipeline_Reg *)malloc(sizeof(Pipeline_Reg));
+
         memset(Arr[i], 0, sizeof(Pipeline_Reg));
     }
+
     return Arr;
 }
 
