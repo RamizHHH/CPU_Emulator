@@ -1,77 +1,29 @@
-#include "Label.h"
-#include "Assemble.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-void readFile(FILE *input, FILE *output, Label *list[512], int address);
+#include "Parse.h"
 
-int main(int agrc, char *argv[])
-{
-    if (agrc < 2)
-    {
-        fprintf(stderr, "Usage: %s <input file>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
+int main(int argv, char **argc) {
 
-    const char *inputPath = argv[1];
+  if (argv < 2) {
+    perror("Insufficent Number of Arguments\n");
+  }
 
-    FILE *inputFile = fopen(inputPath, "r");
-    FILE *Output = fopen("Program.bin", "wb");
+  FILE *input_file = fopen(argc[1], "r");
+  FILE *output_file = fopen("Program.bin", "wb");
 
-    if (!inputFile || !Output)
-    {
-        perror("Invalid Files");
-        return EXIT_FAILURE;
-    }
+  if (!input_file) {
+    perror("Invalid File\n");
+  }
 
-    char line[512];
-    Label *list[512] = {0};
-    int index = 0;
-    int currentAddress = 0;
+  char buffer[1024];
 
-    while (fgets(line, sizeof(line), inputFile))
-    {
-        if (CheckLabel(line) == 1)
-        {
-            Label *label = malloc(sizeof(Label));
-            AddLabelToList(label, line, list, currentAddress, index);
-            index++;
-            continue;
-        }
-        currentAddress += 4;
-    }
+  while (fgets(buffer, sizeof(buffer), input_file) != NULL) {
+    uint32_t out = Parse(buffer, output_file);
+    fprintf(out, output_file);
+  }
 
-    currentAddress = 0;
-
-    rewind(inputFile);
-
-    readFile(inputFile, Output, list, currentAddress);
-
-    fclose(inputFile);
-    fclose(Output);
-
-    for (int i = 0; i < index; ++i)
-    {
-        free(list[i]);
-    }
-
-    return 0;
-}
-
-void readFile(FILE *input, FILE *output, Label *list[512], int address)
-{
-    char line[512];
-    while (fgets(line, sizeof(line), input))
-    {
-        if (CheckLabel(line))
-        {
-            continue;
-        }
-
-        uint32_t instruction = AssembleLine(line, list, address);
-
-        address += 4;
-
-        fwrite(&instruction, sizeof(instruction), 1, output);
-    }
+  fclose(input_file);
+  return 0;
 }
