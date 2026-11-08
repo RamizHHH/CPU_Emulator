@@ -1,114 +1,144 @@
 #include "Execute.h"
 
 void ExecuteInstr(CPU *cpu, Pipeline_Reg *ID_EX_Current,
-                  Pipeline_Reg *ID_EX_Next) {
+                  Pipeline_Reg *ID_EX_Next)
+{
+
   ID_EX_Next->instr = ID_EX_Current->instr;
+
   ID_EX_Next->RawInstr = ID_EX_Current->RawInstr;
+
   ID_EX_Current->val = 0;
 
-  if (ID_EX_Current->instr->Type == 'R') {
+  if (ID_EX_Current->instr->Type == 'R')
+  {
+
     isRType(cpu, ID_EX_Current, ID_EX_Next);
     return;
-  } else if (ID_EX_Current->instr->Type == 'I') {
+  }
+  else if (ID_EX_Current->instr->Type == 'I')
+  {
+
     isIType(cpu, ID_EX_Current, ID_EX_Next);
     return;
-  } else if (ID_EX_Current->instr->Type == 'S') {
+  }
+  else if (ID_EX_Current->instr->Type == 'S')
+  {
+
     isSType(cpu, ID_EX_Current, ID_EX_Next);
     return;
-  } else if (ID_EX_Current->instr->Type == 'P') {
+  }
+  else if (ID_EX_Current->instr->Type == 'P')
+  {
+
     isPType(cpu, ID_EX_Current);
     return;
-  } else if (ID_EX_Current->instr->Type == 'B') {
+  }
+  else if (ID_EX_Current->instr->Type == 'B')
+  {
+
     isBType(cpu, ID_EX_Current);
     return;
-  } else if (ID_EX_Current->instr->Type == 'J') {
+  }
+  else if (ID_EX_Current->instr->Type == 'J')
+  {
 
     isJType(cpu, ID_EX_Current, ID_EX_Next);
     return;
-  } else {
-    perror("Invalid Instruction");
-    exit(1);
+  }
+  else
+  {
+    perror("Invalid Instruction\n");
   }
 }
 
-void isRType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next) {
-  switch (ID_EX_Current->instr->Opcode) {
-  case 0x01:
+void isRType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next)
+{
+  switch (ID_EX_Current->instr->Opcode)
+  {
+  case OP_ADD:
 
     ID_EX_Next->val = cpu->reg[ID_EX_Current->instr->rs1] +
                       cpu->reg[ID_EX_Current->instr->rs2];
     break;
 
-  case 0x02:
+  case OP_SUB:
 
     ID_EX_Next->val = cpu->reg[ID_EX_Current->instr->rs1] -
                       cpu->reg[ID_EX_Current->instr->rs2];
     break;
 
-  case 0x03:
+  case OP_AND:
 
     ID_EX_Next->val = cpu->reg[ID_EX_Current->instr->rs1] &
                       cpu->reg[ID_EX_Current->instr->rs2];
     break;
 
-  case 0x04:
+  case OP_OR:
 
     ID_EX_Next->val = cpu->reg[ID_EX_Current->instr->rs1] |
                       cpu->reg[ID_EX_Current->instr->rs2];
     break;
 
-  case 0x05:
+  case OP_XOR:
 
     ID_EX_Next->val = cpu->reg[ID_EX_Current->instr->rs1] ^
                       cpu->reg[ID_EX_Current->instr->rs2];
     break;
 
-  case 0x06:
+  case OP_SHL:
 
     ID_EX_Next->val = cpu->reg[ID_EX_Current->instr->rs1]
                       << (cpu->reg[ID_EX_Current->instr->rs2] & 31);
     break;
 
-  case 0x07:
+  case OP_SHR:
 
     ID_EX_Next->val = cpu->reg[ID_EX_Current->instr->rs1] >>
                       (cpu->reg[ID_EX_Current->instr->rs2] & 31);
     break;
 
-  case 0x08:
+  case OP_SAR:
 
     ID_EX_Next->val = (int32_t)cpu->reg[ID_EX_Current->instr->rs1] >>
                       (cpu->reg[ID_EX_Current->instr->rs2] & 31);
     break;
 
-  case 0x09: {
+  case OP_MUL:
+  {
     int16_t result = (int64_t)(int32_t)cpu->reg[ID_EX_Current->instr->rs2] *
                      (int64_t)(int32_t)cpu->reg[ID_EX_Current->instr->rs2];
     ID_EX_Next->val = (uint32_t)result;
     break;
   }
 
-  case 0x0A:
+  case OP_DIV:
 
-    if (cpu->reg[ID_EX_Current->instr->rs2] != 0) {
+    if (cpu->reg[ID_EX_Current->instr->rs2] != 0)
+    {
       ID_EX_Next->val =
           (uint32_t)((int32_t)cpu->reg[ID_EX_Current->instr->rs1] /
                      (int32_t)cpu->reg[ID_EX_Current->instr->rs2]);
       break;
-    } else {
+    }
+    else
+    {
       // ADD TRAP HERE
       perror("Error divide by zero");
       exit(1);
     }
 
-  case 0x0B:
+  case OP_MOD:
 
-    if (cpu->reg[ID_EX_Current->instr->rs2] != 0) {
+    if (cpu->reg[ID_EX_Current->instr->rs2] != 0)
+    {
       ID_EX_Next->val =
           (uint32_t)((int32_t)cpu->reg[ID_EX_Current->instr->rs2] %
                      (int32_t)cpu->reg[ID_EX_Current->instr->rs2]);
       break;
-    } else {
+    }
+    else
+    {
       // ADD TRAP HERE
       perror("Error divide by zero");
       exit(1);
@@ -117,17 +147,17 @@ void isRType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next) {
     // case 0x0C:  DO WHEN FLAGS ARE IMPLEMENTED
     //     break;
 
-  case 0x0D:
+  case OP_MOV:
 
     ID_EX_Next->val = cpu->reg[ID_EX_Current->instr->rs1];
     break;
 
-  case 0x0E:
+  case OP_NOT:
 
     ID_EX_Next->val = ~(cpu->reg[ID_EX_Current->instr->rs1]);
     break;
 
-  case 0x0F:
+  case OP_NEG:
 
     ID_EX_Next->val = 0 - (cpu->reg[ID_EX_Current->instr->rs1]);
     break;
@@ -137,112 +167,89 @@ void isRType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next) {
   }
 }
 
-void isIType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next) {
+void isIType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next)
+{
 
-  switch (ID_EX_Current->instr->Opcode) {
-  case 0x10:
+  switch (ID_EX_Current->instr->Opcode)
+  {
+  case OP_ADDI:
+
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
     break;
 
-  case 0x11:
+  case OP_SUBI:
 
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] - ID_EX_Current->instr->imm;
     break;
 
-  case 0x12:
+  case OP_ANDI:
 
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] & ID_EX_Current->instr->imm;
     break;
 
-  case 0x13:
+  case OP_ORI:
 
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] | ID_EX_Current->instr->imm;
     break;
 
-  case 0x14:
+  case OP_XORI:
 
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] ^ ID_EX_Current->instr->imm;
     break;
 
-  case 0x15:
+  case OP_SHLI:
 
     ID_EX_Next->val = cpu->reg[ID_EX_Current->instr->rs1]
                       << (ID_EX_Current->instr->imm & 31);
     break;
 
-  case 0x16:
+  case OP_SHRI:
 
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] >> (ID_EX_Current->instr->imm & 31);
     break;
 
-  case 0x17:
+  case OP_SARI:
 
     ID_EX_Next->val = (int32_t)cpu->reg[ID_EX_Current->instr->rs1] >>
                       (ID_EX_Current->instr->imm & 31);
     break;
 
-  case 0x19:
+  case OP_MOVI:
 
     ID_EX_Next->val = ID_EX_Current->instr->imm;
     break;
 
-  case 0x1A:
+  case OP_LD:
 
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
     break;
 
-  case 0x1B:
+  case OP_LDH:
 
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
     break;
 
-  case 0x1C:
+  case OP_LDB:
 
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
     break;
 
-  case 0x1D:
+  case OP_LDUH:
 
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
     break;
 
-  case 0x1E:
-
-    ID_EX_Next->val =
-        cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
-    break;
-
-  default:
-    break;
-  }
-}
-
-void isSType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next) {
-  switch (ID_EX_Current->instr->Opcode) {
-
-  case 0x1F:
-
-    ID_EX_Next->val =
-        cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
-    break;
-
-  case 0x20:
-
-    ID_EX_Next->val =
-        cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
-    break;
-
-  case 0x21:
+  case OP_LDUB:
 
     ID_EX_Next->val =
         cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
@@ -253,68 +260,119 @@ void isSType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next) {
   }
 }
 
-void isBType(CPU *cpu, Pipeline_Reg *ID_EX_Current) {
-  if (ID_EX_Current->instr->Opcode == 0x22) {
+void isSType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next)
+{
+  switch (ID_EX_Current->instr->Opcode)
+  {
+
+  case OP_ST:
+
+    ID_EX_Next->val =
+        cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
+    break;
+
+  case OP_STH:
+
+    ID_EX_Next->val =
+        cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
+    break;
+
+  case OP_STB:
+
+    ID_EX_Next->val =
+        cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm;
+    break;
+
+  default:
+    break;
+  }
+}
+
+void isBType(CPU *cpu, Pipeline_Reg *ID_EX_Current)
+{
+  if (ID_EX_Current->instr->Opcode == OP_BEQ)
+  {
+
     if (cpu->reg[ID_EX_Current->instr->rs1] ==
-        cpu->reg[ID_EX_Current->instr->rs2]) {
+        cpu->reg[ID_EX_Current->instr->rs2])
+    {
       cpu->pc += ID_EX_Current->instr->imm;
     }
   }
-  if (ID_EX_Current->instr->Opcode == 0x23) {
+  if (ID_EX_Current->instr->Opcode == OP_BNE)
+  {
+
     if (cpu->reg[ID_EX_Current->instr->rs1] !=
-        cpu->reg[ID_EX_Current->instr->rs2]) {
+        cpu->reg[ID_EX_Current->instr->rs2])
+    {
       cpu->pc += ID_EX_Current->instr->imm;
     }
   }
-  if (ID_EX_Current->instr->Opcode == 0x24) {
+  if (ID_EX_Current->instr->Opcode == OP_BLT)
+  {
+
     if ((int32_t)cpu->reg[ID_EX_Current->instr->rs1] <=
-        (int32_t)cpu->reg[ID_EX_Current->instr->rs2]) {
+        (int32_t)cpu->reg[ID_EX_Current->instr->rs2])
+    {
       cpu->pc += ID_EX_Current->instr->imm;
     }
   }
-  if (ID_EX_Current->instr->Opcode == 0x25) {
+  if (ID_EX_Current->instr->Opcode == OP_BGE)
+  {
+
     if ((int32_t)cpu->reg[ID_EX_Current->instr->rs1] >=
-        (int32_t)cpu->reg[ID_EX_Current->instr->rs2]) {
+        (int32_t)cpu->reg[ID_EX_Current->instr->rs2])
+    {
       cpu->pc += ID_EX_Current->instr->imm;
     }
   }
-  if (ID_EX_Current->instr->Opcode == 0x26) {
+  if (ID_EX_Current->instr->Opcode == OP_BLTU)
+  {
+
     if (cpu->reg[ID_EX_Current->instr->rs1] <=
-        cpu->reg[ID_EX_Current->instr->rs2]) {
+        cpu->reg[ID_EX_Current->instr->rs2])
+    {
       cpu->pc += ID_EX_Current->instr->imm;
     }
   }
-  if (ID_EX_Current->instr->Opcode == 0x27) {
+  if (ID_EX_Current->instr->Opcode == OP_BGEU)
+  {
+
     if (cpu->reg[ID_EX_Current->instr->rs1] >=
-        cpu->reg[ID_EX_Current->instr->rs2]) {
+        cpu->reg[ID_EX_Current->instr->rs2])
+    {
       cpu->pc += ID_EX_Current->instr->imm;
     }
   }
 }
 
-void isJType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next) {
-  if (ID_EX_Current->instr->Opcode == 0x28) {
+void isJType(CPU *cpu, Pipeline_Reg *ID_EX_Current, Pipeline_Reg *ID_EX_Next)
+{
+  if (ID_EX_Current->instr->Opcode == OP_JMP)
+  {
+
     cpu->pc += ID_EX_Current->instr->imm;
-  } else if (ID_EX_Current->instr->Opcode == 0x29) {
+  }
+  else if (ID_EX_Current->instr->Opcode == OP_JAL)
+  {
 
     ID_EX_Next->val = cpu->pc;
     cpu->pc += ID_EX_Current->instr->imm;
-  } else if (ID_EX_Current->instr->Opcode == 0x2A) {
+  }
+  else if (ID_EX_Current->instr->Opcode == OP_JALR)
+  {
+
     ID_EX_Next->val = cpu->pc;
     cpu->pc =
         (cpu->reg[ID_EX_Current->instr->rs1] + ID_EX_Current->instr->imm) & ~1;
   }
 }
 
-void isPType(CPU *cpu, Pipeline_Reg *ID_EX_Current) {
-  if (ID_EX_Current->instr->Opcode == 0x32) {
+void isPType(CPU *cpu, Pipeline_Reg *ID_EX_Current)
+{
+
+  if (ID_EX_Current->instr->Opcode == OP_HALT)
+  {
     cpu->halted = 1;
-    return;
   }
 }
-
-// void freeExRegister(Execute_Register *reg)
-// {
-//     free(reg);
-//     return;
-// }
