@@ -5,14 +5,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
+typedef struct
+{
   const char *name;
   uint8_t opcode;
 } OpcodeEntry;
 
 uint32_t AssembleLine(char *line, Label **list, int currentAddress);
 
-typedef enum {
+typedef enum
+{
   OP_ADD = 0x01,
   OP_SUB = 0x02,
   OP_AND = 0x03,
@@ -66,21 +68,47 @@ typedef enum {
 } Opcode;
 
 static const OpcodeEntry opcodeTable[] = {
-    {"ADD", OP_ADD},   {"SUB", OP_SUB},   {"AND", OP_AND},   {"OR", OP_OR},
-    {"XOR", OP_XOR},   {"SHR", OP_SHR},   {"MUL", OP_MUL},   {"DIV", OP_DIV},
-    {"MOD", OP_MOD},   {"CMP", OP_CMP},   {"MOV", OP_MOV},   {"NOT", OP_NOT},
+    {"ADD", OP_ADD},
+    {"SUB", OP_SUB},
+    {"AND", OP_AND},
+    {"OR", OP_OR},
+    {"XOR", OP_XOR},
+    {"SHR", OP_SHR},
+    {"MUL", OP_MUL},
+    {"DIV", OP_DIV},
+    {"MOD", OP_MOD},
+    {"CMP", OP_CMP},
+    {"MOV", OP_MOV},
+    {"NOT", OP_NOT},
     {"NEG", OP_NEG},
 
-    {"ADDI", OP_ADDI}, {"SUBI", OP_SUBI}, {"ORI", OP_ORI},   {"XORI", OP_XORI},
-    {"SHLI", OP_SHLI}, {"SHRI", OP_SHRI}, {"SARI", OP_SARI}, {"CMPI", OP_CMPI},
+    {"ADDI", OP_ADDI},
+    {"SUBI", OP_SUBI},
+    {"ORI", OP_ORI},
+    {"XORI", OP_XORI},
+    {"SHLI", OP_SHLI},
+    {"SHRI", OP_SHRI},
+    {"SARI", OP_SARI},
+    {"CMPI", OP_CMPI},
     {"MOVI", OP_MOVI},
 
-    {"LD", OP_LD},     {"LDH", OP_LDH},   {"LDB", OP_LDB},   {"LDUH", OP_LDUH},
+    {"LD", OP_LD},
+    {"LDH", OP_LDH},
+    {"LDB", OP_LDB},
+    {"LDUH", OP_LDUH},
 
-    {"ST", OP_ST},     {"STH", OP_STH},   {"STB", OP_STB},
+    {"ST", OP_ST},
+    {"STH", OP_STH},
+    {"STB", OP_STB},
 
-    {"BEQ", OP_BEQ},   {"BNE", OP_BNE},   {"BLT", OP_BLT},   {"BGE", OP_BGE},
-    {"BLTU", OP_BLTU}, {"BGEU", OP_BGEU}, {"JMP", OP_JMP},   {"JAL", OP_JAL},
+    {"BEQ", OP_BEQ},
+    {"BNE", OP_BNE},
+    {"BLT", OP_BLT},
+    {"BGE", OP_BGE},
+    {"BLTU", OP_BLTU},
+    {"BGEU", OP_BGEU},
+    {"JMP", OP_JMP},
+    {"JAL", OP_JAL},
     {"JALR", OP_JALR},
 
     {"RET", OP_RET},

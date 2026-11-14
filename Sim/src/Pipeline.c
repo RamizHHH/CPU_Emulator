@@ -5,44 +5,50 @@ void Pipeline(CPU *cpu, uint32_t *mem) {
 
   int cycle = 0;
 
-  while (cpu->halted != 1) {
-    // This might be not best practice but we will role with it for now.
+  do {
+
     memset(PipelineRegisters[IF_ID_Next], 0, sizeof(Pipeline_Reg));
     memset(PipelineRegisters[ID_EX_Next], 0, sizeof(Pipeline_Reg));
     memset(PipelineRegisters[EX_MEM_Next], 0, sizeof(Pipeline_Reg));
     memset(PipelineRegisters[MEM_WB_Next], 0, sizeof(Pipeline_Reg));
 
-    PipelineRegisters[IF_ID_Next]->RawInstr = FetchInstruction(mem, cpu);
+    if (cpu->halted != 1 && PipelineRegisters[IF_ID_Current]->instr == NULL) {
+      PipelineRegisters[IF_ID_Next]->RawInstr = FetchInstruction(mem, cpu);
+    }
 
-    if (PipelineRegisters[IF_ID_Current]->RawInstr != 0) {
+    if (PipelineRegisters[IF_ID_Current]->RawInstr != 0 && cpu->halted != 1) {
       PipelineRegisters[ID_EX_Next]->instr =
           DecodeInstruction(PipelineRegisters[IF_ID_Current]->RawInstr,
                             PipelineRegisters[ID_EX_Next]);
     }
 
-    if (PipelineRegisters[ID_EX_Current]->instr != 0) {
+    if (PipelineRegisters[ID_EX_Current]->instr != NULL && cpu->halted != 1) {
       ExecuteInstr(cpu, PipelineRegisters[ID_EX_Current],
                    PipelineRegisters[EX_MEM_Next]);
     }
 
-    if (PipelineRegisters[EX_MEM_Current]->instr != 0) {
+    if (PipelineRegisters[EX_MEM_Current]->instr != NULL) {
       MemStage(PipelineRegisters[EX_MEM_Current],
                PipelineRegisters[MEM_WB_Next], mem, cpu);
     }
 
-    if (PipelineRegisters[MEM_WB_Current]->instr != 0) {
+    if (PipelineRegisters[MEM_WB_Current]->instr != NULL) {
       WriteBack(PipelineRegisters[MEM_WB_Current], cpu);
     }
-
-    printInstrStages(cycle, cpu, PipelineRegisters);
 
     *PipelineRegisters[IF_ID_Current] = *PipelineRegisters[IF_ID_Next];
     *PipelineRegisters[ID_EX_Current] = *PipelineRegisters[ID_EX_Next];
     *PipelineRegisters[EX_MEM_Current] = *PipelineRegisters[EX_MEM_Next];
     *PipelineRegisters[MEM_WB_Current] = *PipelineRegisters[MEM_WB_Next];
 
+    printInstrStages(cycle, cpu, PipelineRegisters);
+
     cycle++;
-  }
+  } while (cpu->halted != 1 ||
+           PipelineRegisters[IF_ID_Current]->RawInstr != 0 ||
+           PipelineRegisters[ID_EX_Current]->instr != NULL ||
+           PipelineRegisters[EX_MEM_Current]->instr != NULL ||
+           PipelineRegisters[MEM_WB_Current]->instr != NULL);
 
   FreePipelineReg(PipelineRegisters);
   return;

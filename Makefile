@@ -1,21 +1,21 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -ISimulator_C/include -IAssembler_C/include -ISimulator_C/include/Stages
+CFLAGS = -Wall -Wextra -ISim/include -IAssem/include -ISim/include/Stages
 TARGET = Simulator.out
 TARGET2 = Assembler.out
 
-EMULATOR_SRC = Simulator_C/src/Main.c \
- Simulator_C/src/CPU.c \
- Simulator_C/src/CPU_Memory.c \
- Simulator_C/src/Pipeline.c \
- Simulator_C/src/Stages/Fetch.c \
- Simulator_C/src/Stages/Decode.c \
- Simulator_C/src/Stages/Execute.c \
- Simulator_C/src/Stages/Memory_Stage.c \
- Simulator_C/src/Stages/WriteBack.c
+EMULATOR_SRC = Sim/src/Main.c \
+ Sim/src/CPU.c \
+ Sim/src/CPU_Memory.c \
+ Sim/src/Pipeline.c \
+ Sim/src/Stages/Fetch.c \
+ Sim/src/Stages/Decode.c \
+ Sim/src/Stages/Execute.c \
+ Sim/src/Stages/Memory_Stage.c \
+ Sim/src/Stages/WriteBack.c
 
-ASSEMBLER_SRC = Assembler_C/src/Assembler.c \
- Assembler_C/src/Assemble.c \
- Assembler_C/src/Label.c
+ASSEMBLER_SRC = Assem/src/Assembler.c \
+ Assem/src/Assemble.c \
+ Assem/src/Label.c
 
 Simulator:
 	$(CC) $(CFLAGS) $(EMULATOR_SRC) -o $(TARGET)
